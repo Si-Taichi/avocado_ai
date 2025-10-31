@@ -45,8 +45,8 @@ class CNN(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=3, stride=1)
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1)
 
-        self.fc1 = nn.Linear(32 * 53 * 53, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc1 = nn.Linear(32 * 53 * 53, 64)
+        self.fc2 = nn.Linear(64, num_classes)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -59,14 +59,14 @@ class CNN(nn.Module):
         return F.log_softmax(x, dim=1)
 
 def main():
-    root_dir = 'day'  # folder containing sub-folders “1”, “2”,… “9”
+    root_dir = 'day'
     transform = ImageTransform(size=(224, 224))
     dataset = ChannelDataset(root_dir=root_dir, transform=transform)
 
     writer = SummaryWriter(log_dir='logs/avocado_model')
     best_val_loss = float('inf')
     epochs_no_improve = 0
-    early_stop_patience = 5
+    early_stop_patience = 10
 
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -95,7 +95,6 @@ def main():
             correct += (preds == labels).sum().item()
             total += labels.size(0)
 
-            # Calculate current loss
             current_loss = running_loss / total
             if current_loss < best_val_loss:
                 best_val_loss = current_loss
@@ -104,7 +103,6 @@ def main():
             else:
                 epochs_no_improve += 1
                 
-            # Log metrics to tensorboard
             writer.add_scalar('Loss/train', current_loss, epoch)
             writer.add_scalar('Accuracy/train', correct / total, epoch)
 
