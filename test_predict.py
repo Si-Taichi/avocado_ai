@@ -5,15 +5,15 @@ from torchvision import transforms
 from PIL import Image
 import argparse
 import os
-from augmentation import FourChannelImageTransform
+from augmentation import ImageTransform
 
 class CNN4Channel(nn.Module):
     def __init__(self, num_classes=9):
         super(CNN4Channel, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=3, stride=1)
         self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1)
-        self.fc1 = nn.Linear(32 * 53 * 53, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc1 = nn.Linear(32 * 53 * 53, 64)
+        self.fc2 = nn.Linear(64, num_classes)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -31,7 +31,7 @@ def predict(vis_path, nir_path, model_path, class_names):
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
 
-    transform = FourChannelImageTransform(size=(224,224))
+    transform = ImageTransform(size=(224,224))
     image = transform(vis_path, nir_path).unsqueeze(0).to(device)  # batch size 1
     with torch.no_grad():
         output = model(image)
