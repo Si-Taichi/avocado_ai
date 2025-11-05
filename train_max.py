@@ -65,17 +65,20 @@ def main():
 
     writer = SummaryWriter(log_dir='logs/avocado_model')
     best_val_loss = float('inf')
+    best_val_acc  = 0.0
     epochs_no_improve = 0
     early_stop_patience = 10
 
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Using device : ", device)
     model = CNN(num_classes=9).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.00001)
 
     loader = DataLoader(dataset, batch_size=16, shuffle=True)
-    epochs = 30
+    epochs = 10
+    
 
     for epoch in range(epochs):
         model.train()
@@ -96,10 +99,17 @@ def main():
             total += labels.size(0)
 
             current_loss = running_loss / total
-            if current_loss < best_val_loss:
-                best_val_loss = current_loss
-                epochs_no_improve = 0
+            val_acc = correct / total
+            
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
                 torch.save(model.state_dict(), 'models/best_model.pth')
+                print(f"Epoch {epoch+1}: New best model saved (val_acc = {val_acc:.4f})")
+
+            # if current_loss < best_val_loss:
+            #     best_val_loss = current_loss
+            #     epochs_no_improve = 0
+            #     torch.save(model.state_dict(), 'models/best_model.pth')
             else:
                 epochs_no_improve += 1
                 
