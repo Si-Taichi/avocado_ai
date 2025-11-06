@@ -63,6 +63,11 @@ def main():
     transform = ImageTransform(size=(224, 224))
     dataset = ChannelDataset(root_dir=root_dir, transform=transform)
 
+    train_dataset = ChannelDataset(root_dir='data/train/day', transform=transform)
+    val_dataset   = ChannelDataset(root_dir='data/val/day',   transform=transform)
+    test_dataset  = ChannelDataset(root_dir='data/test/day',  transform=transform)
+
+
     writer = SummaryWriter(log_dir='logs/avocado_model')
     best_val_loss = float('inf')
     best_val_acc  = 0.0
@@ -76,7 +81,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.00001)
 
-    loader = DataLoader(dataset, batch_size=16, shuffle=True)
+    loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
     epochs = 10
     
 
