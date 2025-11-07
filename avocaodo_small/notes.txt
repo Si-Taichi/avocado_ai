@@ -1,0 +1,1 @@
+Avocaodo_small folder is for using only picture in visible light range (RGB picture)
